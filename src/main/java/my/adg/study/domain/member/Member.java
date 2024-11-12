@@ -30,6 +30,7 @@ public class Member {
         return Objects.hash(id);
     }
 
+    // 잘하고있는거겠지?
     @Override
     public boolean equals(Object obj) {
         if(this == obj) {
