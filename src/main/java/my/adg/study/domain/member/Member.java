@@ -21,8 +21,17 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 50)
+    private String email;
+
     @Column(nullable = false, length = MAX_NAME_LENGTH)
     private String name;
+
+    @Column(nullable = false, length = 20)
+    private String nickname;
+
+    @Column(nullable = false, length = 11)
+    private String phone;
 
 
     @Override
