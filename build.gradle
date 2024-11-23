@@ -48,7 +48,13 @@ tasks.named('test') {
 
 processResources.dependsOn('copySecret')
 tasks.register('copySecret', Copy) {
-    from './resources/config'
-    include "*.yml"
+    from('./resources/config') {
+        include "*.yml"
+    }
     into './src/main/resources'
+
+    from('./resources/config/deployments') {
+        include "*.jenkinsfile"
+    }
+    into './deployments'
 }
