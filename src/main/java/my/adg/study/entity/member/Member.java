@@ -1,4 +1,4 @@
-package my.adg.study.domain.member;
+package my.adg.study.entity.member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,8 +21,17 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 50)
+    private String email;
+
     @Column(nullable = false, length = MAX_NAME_LENGTH)
     private String name;
+
+    @Column(nullable = false, length = 20)
+    private String nickname;
+
+    @Column(nullable = false, length = 11)
+    private String phone;
 
 
     @Override
@@ -30,6 +39,7 @@ public class Member {
         return Objects.hash(id);
     }
 
+    
     // 잘하고있는거겠지?
     @Override
     public boolean equals(Object obj) {

@@ -1,4 +1,4 @@
-package my.adg.study.presentation;
+package my.adg.study.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
