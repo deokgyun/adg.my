@@ -1,4 +1,4 @@
-package my.adg.study.domain.member;
+package my.adg.study.entity.member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
