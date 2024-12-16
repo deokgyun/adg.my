@@ -1,7 +1,10 @@
 pipeline {
     agent any
     environment {
-        OCI_REGION = env.OCI_REGION
+        OCI_REGION ="""${sh(
+                                    returnStdout: true,
+                                    script: 'echo ${OCI_REGION}'
+                                )}"""
         OCI_REPOSITORY = ${OCI_REPOSITORY}
         IMAGE_TAG = ${IMAGE_TAG}
         OCI_USER = ${OCI_USER}
