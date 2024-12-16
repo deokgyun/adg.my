@@ -1,0 +1,77 @@
+pipeline {
+    agent any
+    environment {
+        OCI_REGION = ${OCI_REGION} // 예: us-phoenix-1
+        OCI_REPOSITORY = ${OCI_REPOSITORY} // 예: my-oci-repo
+        IMAGE_TAG = ${IMAGE_TAG} // 태그를 필요에 따라 변경하세요.
+        OCI_USER = ${OCI_USER} // OCI 사용자 이름
+        OCI_PASSWORD = ${OCI_PASSWORD} // OCI 사용자 비밀번호
+        DEPLOY_SERVER = ${DEPLOY_SERVER} // 배포 서버 주소
+        DEPLOY_USER = ${DEPLOY_USER} // 배포 서버 사용자
+        DEPLOY_PATH = ${DEPLOY_PATH} // 배포 경로
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // GitHub에서 코드 체크아웃
+                checkout scm
+            }
+        }
+        stage('Login to Oracle Cloud') {
+            steps {
+                // OCI에 로그인
+                script {
+                    sh 'echo $OCI_PASSWORD | docker login --username $OCI_USER --password-stdin $OCI_REGION.ocir.io'
+                }
+            }
+        }
+        stage('Delete Existing Image') {
+            steps {
+                // 기존 이미지를 OCI 레지스트리에서 삭제
+                script {
+                    sh '''
+                    IMAGE_URI=$OCI_REGION.ocir.io/$OCI_REPOSITORY:$IMAGE_TAG
+                    # OCI CLI를 사용하여 이미지를 삭제합니다.
+                    oci artifacts container image delete --image-id $IMAGE_URI --force || true
+                    '''
+                }
+            }
+        }
+        stage('Build & Push New Image') {
+            steps {
+                // 새로운 Docker 이미지를 빌드하고 OCI 레지스트리에 푸시
+                script {
+                    sh '''
+                    IMAGE_URI=$OCI_REGION.ocir.io/$OCI_REPOSITORY:$IMAGE_TAG
+                    docker build -t $IMAGE_URI .
+                    docker push $IMAGE_URI
+                    '''
+                }
+            }
+        }
+        stage('Deploy to Server') {
+            steps {
+                // 배포 서버에서 Docker 이미지를 받아 실행
+                sshagent(['DEV-adg.my']) {
+                    sh '''
+                    ssh $DEPLOY_USER@$DEPLOY_SERVER << EOF
+                    docker login --username $OCI_USER --password-stdin $OCI_PASSWORD $OCI_REGION.ocir.io
+                    docker pull $OCI_REGION.ocir.io/$OCI_REPOSITORY:$IMAGE_TAG
+                    docker stop my-app || true
+                    docker rm my-app || true
+                    docker run -d --name my-app -p 80:8080 $OCI_REGION.ocir.io/$OCI_REPOSITORY:$IMAGE_TAG
+                    EOF
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
+}
