@@ -46,15 +46,22 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-processResources.dependsOn('copySecret')
-tasks.register('copySecret', Copy) {
+processResources.dependsOn('copyYmlFiles', 'copyJenkinsFiles')
+
+tasks.register('copyYmlFiles', Copy) {
     from('./resources/config') {
         include "*.yml"
     }
     into './src/main/resources'
+}
 
+tasks.register('copyJenkinsFiles', Copy) {
     from('./resources/config/deployments') {
         include "*.jenkinsfile"
     }
     into './deployments'
+}
+
+processResources {
+    dependsOn tasks.named('copyYmlFiles'), tasks.named('copyJenkinsFiles')
 }
