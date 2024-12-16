@@ -5,13 +5,34 @@ pipeline {
                                     returnStdout: true,
                                     script: 'echo ${OCI_REGION}'
                                 )}"""
-        OCI_REPOSITORY = ${OCI_REPOSITORY}
-        IMAGE_TAG = ${IMAGE_TAG}
-        OCI_USER = ${OCI_USER}
-        OCI_PASSWORD = ${OCI_PASSWORD}
-        DEPLOY_SERVER = ${DEPLOY_SERVER}
-        DEPLOY_USER = ${DEPLOY_USER}
-        DEPLOY_PATH = ${DEPLOY_PATH}
+        OCI_REPOSITORY = """${sh(
+                                                             returnStdout: true,
+                                                             script: 'echo ${OCI_REPOSITORY}'
+                                                         )}"""
+        IMAGE_TAG = """${sh(
+                                                        returnStdout: true,
+                                                        script: 'echo ${IMAGE_TAG}'
+                                                    )}"""
+        OCI_USER = """${sh(
+                                                       returnStdout: true,
+                                                       script: 'echo ${OCI_USER}'
+                                                   )}"""
+        OCI_PASSWORD = """${sh(
+                                                           returnStdout: true,
+                                                           script: 'echo ${OCI_PASSWORD}'
+                                                       )}"""
+        DEPLOY_SERVER = """${sh(
+                                                            returnStdout: true,
+                                                            script: 'echo ${DEPLOY_SERVER}'
+                                                        )}"""
+        DEPLOY_USER = """${sh(
+                                                          returnStdout: true,
+                                                          script: 'echo ${DEPLOY_USER}'
+                                                      )}"""
+        DEPLOY_PATH = """${sh(
+                                                          returnStdout: true,
+                                                          script: 'echo ${DEPLOY_PATH}'
+                                                      )}"""
     }
     stages {
         stage('Checkout') {
