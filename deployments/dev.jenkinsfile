@@ -1,14 +1,14 @@
 pipeline {
     agent any
     environment {
-        OCI_REGION = ${OCI_REGION} // 예: us-phoenix-1
-        OCI_REPOSITORY = ${OCI_REPOSITORY} // 예: my-oci-repo
-        IMAGE_TAG = ${IMAGE_TAG} // 태그를 필요에 따라 변경하세요.
-        OCI_USER = ${OCI_USER} // OCI 사용자 이름
-        OCI_PASSWORD = ${OCI_PASSWORD} // OCI 사용자 비밀번호
-        DEPLOY_SERVER = ${DEPLOY_SERVER} // 배포 서버 주소
-        DEPLOY_USER = ${DEPLOY_USER} // 배포 서버 사용자
-        DEPLOY_PATH = ${DEPLOY_PATH} // 배포 경로
+        OCI_REGION = ${OCI_REGION}
+        OCI_REPOSITORY = ${OCI_REPOSITORY}
+        IMAGE_TAG = ${IMAGE_TAG}
+        OCI_USER = ${OCI_USER}
+        OCI_PASSWORD = ${OCI_PASSWORD}
+        DEPLOY_SERVER = ${DEPLOY_SERVER}
+        DEPLOY_USER = ${DEPLOY_USER}
+        DEPLOY_PATH = ${DEPLOY_PATH}
     }
     stages {
         stage('Checkout') {
