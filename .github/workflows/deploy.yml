@@ -39,5 +39,5 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
-          docker pull yny.ocir.io/ax0ijnvub7pp/adg:latest
+          sudo docker pull yny.ocir.io/ax0ijnvub7pp/adg:latest
           sudo docker run -d --name adg -p 8080:8080 yny.ocir.io/ax0ijnvub7pp/adg:latest
