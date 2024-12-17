@@ -16,7 +16,7 @@ on:
   # to build for every push
   push:
     branches:
-      - master
+      - develop
 
 jobs:
   AUTO_DEPLOY:
