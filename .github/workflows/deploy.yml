@@ -45,6 +45,6 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} -p ${{ secrets.OCI_REGISTRY_PASSWORD }}
+          echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
           sudo docker pull yny.ocir.io/ax0ijnvub7pp/adg:latest
           sudo docker run -d --name adg -p 8080:8080 yny.ocir.io/ax0ijnvub7pp/adg:latest
