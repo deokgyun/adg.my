@@ -1,36 +1,60 @@
-name: deploy
+name: CI/CD for Spring Boot with Docker and OCI
 
-
-on: 
-  # to build manually 
-  workflow_dispatch:
-    inputs:
-      name:
-        description: "Person to greet"
-        required: true
-        default: "bossm0n5t3r"
-      home:
-        description: "location"
-        required: false
-        default: "The Octoverse"
-  # to build for every push
+on:
   push:
     branches:
       - develop
 
 jobs:
-  AUTO_DEPLOY:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Run scripts in server
-        uses: appleboy/ssh-action@v0.1.3
-        with:
-          host: ${{ secrets.SSH_IP }}
-          username: ${{ secrets.SSH_ID }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            date > /home/ubuntu/date
-            echo 1 >> /home/ubuntu/date
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v2
+      with:
+        java-version: '21'
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Build Docker image
+      run: docker build -t yny.ocir.io/ax0ijnvub7pp/adg:latest .
+
+    - name: Login to Oracle Container Registry
+      run: echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
+
+    - name: Push Docker image to Oracle Container Registry
+      run: docker push yny.ocir.io/your-namespace/your-docker-image-name:latest
+
+    - name: Deploy to Server 1
+      uses: appleboy/scp-action@v0.1.0
+      with:
+        host: ${{ secrets.SERVER1_HOST }}
+        username: ${{ secrets.SERVER1_USER }}
+        key: ${{ secrets.SERVER1_SSH_KEY }}
+        source: "docker-compose.yml"
+        target: "~/app/"
+
+    - name: Run Docker container on Server 1
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER1_HOST }}
+        username: ${{ secrets.SERVER1_USER }}
+        key: ${{ secrets.SERVER1_SSH_KEY }}
+        script: |
+          docker-compose -f ~/app/docker-compose.yml up -d
+
+    - name: Deploy to Server 2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER2_HOST }}
+        username: ${{ secrets.SERVER2_USER }}
+        key: ${{ secrets.SERVER2_SSH_KEY }}
+        script: |
+          docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} -p ${{ secrets.OCI_REGISTRY_PASSWORD }}
+          docker pull yny.ocir.io/your-namespace/your-docker-image-name:latest
+          docker run -d --name your-container-name -p 8080:8080 yny.ocir.io/your-namespace/your-docker-image-name:latest
