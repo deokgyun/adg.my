@@ -37,18 +37,19 @@ jobs:
     - name: Login to Oracle Container Registry
       run: echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
 
+    - name: Delete existing latest image
+      run: |
+        COMPARTMENT_ID="${{ secrets.OCI_COMPARTMENT_ID }}"
+        REPOSITORY_NAME="adg"
+        IMAGE_TAG="latest"
+        IMAGE_OCID=$(oci artifacts container image list --compartment-id $COMPARTMENT_ID --repository-name $REPOSITORY_NAME --query "data[?contains(@.tags, '${IMAGE_TAG}')].id | [0]" --output text)
+        if [ -n "$IMAGE_OCID" ]; then
+          oci artifacts container image delete --image-id "$IMAGE_OCID" --force
+        fi
+
     - name: Build and push Docker image
       run: |
         docker buildx build --platform linux/amd64,linux/arm64 -t yny.ocir.io/ax0ijnvub7pp/adg:${{ env.GIT_SHA }} -t yny.ocir.io/ax0ijnvub7pp/adg:latest --push .
-
-    - name: Get image ID
-      id: get-image-id
-      run: |
-        COMPARTMENT_ID="${{ secrets.OCI_COMPARTMENT_ID }}"
-        REPOSITORY_NAME="ax0ijnvub7pp/adg"
-        IMAGE_TAG="latest"
-        IMAGE_ID=$(oci artifacts container image list --compartment-id $COMPARTMENT_ID --repository-name $REPOSITORY_NAME --query "data[?contains('${IMAGE_TAG}', 'tags')].id" --output text)
-        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
 
     - name: Deploy to Server
       uses: appleboy/ssh-action@master
