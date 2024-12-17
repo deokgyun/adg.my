@@ -41,6 +41,15 @@ jobs:
       run: |
         docker buildx build --platform linux/amd64,linux/arm64 -t yny.ocir.io/ax0ijnvub7pp/adg:${{ env.GIT_SHA }} -t yny.ocir.io/ax0ijnvub7pp/adg:latest --push .
 
+    - name: Get image ID
+      id: get-image-id
+      run: |
+        COMPARTMENT_ID="${{ secrets.OCI_COMPARTMENT_ID }}"
+        REPOSITORY_NAME="ax0ijnvub7pp/adg"
+        IMAGE_TAG="latest"
+        IMAGE_ID=$(oci artifacts container image list --compartment-id $COMPARTMENT_ID --repository-name $REPOSITORY_NAME --query "data[?contains('${IMAGE_TAG}', 'tags')].id" --output text)
+        echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+
     - name: Deploy to Server
       uses: appleboy/ssh-action@master
       with:
