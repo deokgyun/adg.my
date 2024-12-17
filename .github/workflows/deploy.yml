@@ -45,8 +45,7 @@ jobs:
         IMAGE_OCID=$(oci artifacts container image list \
             --compartment-id $COMPARTMENT_ID \
             --repository-name $REPOSITORY_NAME \
-            --query "data" \
-            --output json | jq -r --arg tag "$IMAGE_TAG" '.[] | select(.tags | index($tag)) | .id')
+            --output json | jq -r --arg tag "$IMAGE_TAG" '.data.items[] | select(.tags | index($tag)) | .id')
         if [ -n "$IMAGE_OCID" ]; then
             oci artifacts container image delete --image-id "$IMAGE_OCID" --force
         fi
