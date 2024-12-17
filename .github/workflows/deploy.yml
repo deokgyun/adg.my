@@ -38,6 +38,7 @@ jobs:
     - name: Push Docker image with latest tag
       run: docker push yny.ocir.io/ax0ijnvub7pp/adg:latest
 
+
     - name: Deploy to Server
       uses: appleboy/ssh-action@master
       with:
