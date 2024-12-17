@@ -42,9 +42,13 @@ jobs:
         COMPARTMENT_ID="${{ secrets.OCI_COMPARTMENT_ID }}"
         REPOSITORY_NAME="adg"
         IMAGE_TAG="latest"
-        IMAGE_OCID=$(oci artifacts container image list --compartment-id $COMPARTMENT_ID --repository-name $REPOSITORY_NAME --query "data[?contains(@.tags, '${IMAGE_TAG}')].id | [0]" --output text)
+        IMAGE_OCID=$(oci artifacts container image list \
+            --compartment-id $COMPARTMENT_ID \
+            --repository-name $REPOSITORY_NAME \
+            --query "data" \
+            --output json | jq -r --arg tag "$IMAGE_TAG" '.[] | select(.tags | index($tag)) | .id')
         if [ -n "$IMAGE_OCID" ]; then
-          oci artifacts container image delete --image-id "$IMAGE_OCID" --force
+            oci artifacts container image delete --image-id "$IMAGE_OCID" --force
         fi
 
     - name: Build and push Docker image
@@ -59,5 +63,11 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
+
+          if [ "$(sudo docker ps -q -f name=adg)" ]; then
+            sudo docker stop adg
+            sudo docker rm adg
+          fi
+
           sudo docker pull yny.ocir.io/ax0ijnvub7pp/adg:latest
           sudo docker run -d --name adg -p 8080:8080 yny.ocir.io/ax0ijnvub7pp/adg:latest
