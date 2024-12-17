@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy the jar file to the container
-COPY build/libs/study.jar app.jar
+COPY build/libs/study-0.0.1-SNAPSHOT.jar app.jar
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=dev"]
