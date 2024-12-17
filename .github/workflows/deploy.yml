@@ -29,33 +29,15 @@ jobs:
       run: echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
 
     - name: Push Docker image to Oracle Container Registry
-      run: docker push yny.ocir.io/your-namespace/your-docker-image-name:latest
+      run: docker push yny.ocir.io/ax0ijnvub7pp/adg:latest
 
-    - name: Deploy to Server 1
-      uses: appleboy/scp-action@v0.1.0
-      with:
-        host: ${{ secrets.SERVER1_HOST }}
-        username: ${{ secrets.SERVER1_USER }}
-        key: ${{ secrets.SERVER1_SSH_KEY }}
-        source: "docker-compose.yml"
-        target: "~/app/"
-
-    - name: Run Docker container on Server 1
+    - name: Deploy to Server
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.SERVER1_HOST }}
-        username: ${{ secrets.SERVER1_USER }}
-        key: ${{ secrets.SERVER1_SSH_KEY }}
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          docker-compose -f ~/app/docker-compose.yml up -d
-
-    - name: Deploy to Server 2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER2_HOST }}
-        username: ${{ secrets.SERVER2_USER }}
-        key: ${{ secrets.SERVER2_SSH_KEY }}
-        script: |
-          docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} -p ${{ secrets.OCI_REGISTRY_PASSWORD }}
-          docker pull yny.ocir.io/your-namespace/your-docker-image-name:latest
-          docker run -d --name your-container-name -p 8080:8080 yny.ocir.io/your-namespace/your-docker-image-name:latest
+          echo ${{ secrets.OCI_REGISTRY_PASSWORD }} | docker login yny.ocir.io -u ${{ secrets.OCI_REGISTRY_USERNAME }} --password-stdin
+          sudo docker pull yny.ocir.io/ax0ijnvub7pp/adg:latest
+          sudo docker run -d --name adg -p 8080:8080 yny.ocir.io/ax0ijnvub7pp/adg:latest
